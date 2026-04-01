@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">Task Manager</div>
+        <nav class="nav">
+          <a href="#" class="nav-item active">My Tasks</a>
+        </nav>
+
+        <!-- Categories Section in Sidebar -->
+        <section class="card card-sidebar">
+          <h3>Categories</h3>
+          <div id="categories" class="categories-list">
+            <div class="category-item" data-category="work">
+              <span class="cat-text">Work</span>
+            </div>
+            <div class="category-item" data-category="personal">
+              <span class="cat-text">Personal</span>
+            </div>
+            <div class="category-item" data-category="study">
+              <span class="cat-text">Study</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Stats Section in Sidebar -->
+        <section class="card card-sidebar">
+          <h3>Stats</h3>
+          <div id="stats" class="stats-box">
+            <div class="stat-item">
+              <div class="stat-number" id="totalStat">0</div>
+              <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="doneStat">0</div>
+              <div class="stat-label">Done</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="nav-bottom">
+          <button id="themeToggle" class="theme-btn">Dark Mode</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="content">
+        <!-- Header -->
+        <header class="header">
+          <div class="search-bar">
+            <input type="text" placeholder="Search tasks..." />
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="exportBtn" class="btn-action" title="Export tasks as JSON">Export</button>
+            <button id="importBtn" class="btn-action" title="Import tasks from JSON">Import</button>
+            <button id="calendarBtn" class="btn-action" title="View calendar">Calendar</button>
+          </div>
+          <button id="addBtn" class="btn-new-task">+ New task</button>
+        </header>
+
+        <!-- Modal for New Task -->
+        <div id="taskModal" class="modal hidden">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>Create New Task</h2>
+              <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <form id="taskForm" class="modal-form">
+              <div class="form-group">
+                <label for="modalTaskName">Task Name *</label>
+                <input
+                  id="modalTaskName"
+                  type="text"
+                  placeholder="e.g. Complete internship report"
+                  maxlength="100"
+                  required
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalTaskDate">Due Date</label>
+                  <input id="modalTaskDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="modalTaskTime">Time</label>
+                  <input id="modalTaskTime" type="time" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="modalCategory">Category</label>
+                <select id="modalCategory">
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="study">Study</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="modalTaskPriority">Priority</label>
+                <select id="modalTaskPriority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="modalTaskNotes">Notes/Description (Optional)</label>
+                <textarea 
+                  id="modalTaskNotes" 
+                  placeholder="Add detailed notes about this task..."
+                  rows="4"
+                  maxlength="500"
+                  style="resize: vertical; font-family: inherit;"
+                ></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalTimeEstimate">Time Estimate (minutes)</label>
+                  <input id="modalTimeEstimate" type="number" placeholder="e.g. 30" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="modalReminder">Reminder Before</label>
+                  <select id="modalReminder">
+                    <option value="none">No Reminder</option>
+                    <option value="5">5 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">1 hour</option>
+                    <option value="1440">1 day</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalRecurring">Repeat Task</label>
+                  <select id="modalRecurring">
+                    <option value="none">No Repeat</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="modalTags">Tags (comma separated)</label>
+                  <input id="modalTags" type="text" placeholder="e.g. urgent, important" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-submit">Create Task</button>
+                <button type="button" id="cancelBtn" class="btn-cancel">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Calendar Modal -->
+        <div id="calendarModal" class="modal hidden">
+          <div class="modal-content" style="max-width: 900px; width: 90%;">
+            <div class="modal-header">
+              <h2>Calendar View</h2>
+              <button id="closeCalendarModal" class="close-btn">&times;</button>
+            </div>
+            <div style="padding: 20px; max-height: 70vh; overflow-y: auto;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <button id="prevMonth" class="btn-primary" style="background: #e5e7eb; color: #374151; padding: 8px 12px; font-size: 13px;">Previous</button>
+                <h3 id="calendarMonth" style="margin: 0; font-size: 18px; flex: 1; text-align: center;">March 2026</h3>
+                <button id="nextMonth" class="btn-primary" style="background: #e5e7eb; color: #374151; padding: 8px 12px; font-size: 13px;">Next</button>
+              </div>
+              <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; min-height: 300px;"></div>
+              <div id="calendarTasksList" style="border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                <h3 style="margin-top: 0;">Tasks for Selected Date:</h3>
+                <ul id="selectedDateTasks" style="list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto;"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid-main">
+          <!-- My Tasks Section -->
+          <section class="card card-tasks">
+            <div class="card-header">
+              <h2>My Tasks</h2>
+              <p id="count" class="text-small">0 tasks</p>
+            </div>
+            <div class="task-filter">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="active">Active</button>
+              <button class="filter-btn" data-filter="done">Done</button>
+            </div>
+            <ul id="taskList" class="task-list"></ul>
+            <p id="empty" class="text-small empty-msg">No tasks yet. Click "+ New task" above.</p>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
